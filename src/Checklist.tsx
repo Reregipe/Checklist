@@ -251,7 +251,7 @@ export function Checklist() {
       id: `${Date.now()}`,
       criadoEm: new Date().toISOString(),
     };
-    const atualizados = [novo, ...checklistsSalvos].slice(0, 5);
+    const atualizados = [novo, ...checklistsSalvos].slice(0, 10);
     setChecklistsSalvos(atualizados);
     localStorage.setItem(SALVAR_KEY, JSON.stringify(atualizados));
   }
