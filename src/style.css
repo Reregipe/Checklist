@@ -306,6 +306,43 @@ button.primary:hover {
   font-weight: 600;
 }
 
+.evidencias-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.evidencias-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.evidencia-link {
+  color: #2563eb;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.upload-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.hint {
+  color: #9ca3af;
+}
+
 @media (max-width: 960px) {
   .filters-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));

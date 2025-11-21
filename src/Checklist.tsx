@@ -12,6 +12,7 @@ type LinhaChecklist = {
   somenteRural?: boolean;
   qtdeEncontrada: number | null;
   observacao: string;
+  evidencias: string[];
 };
 
 type ModoChecklist = 'VIATURA' | 'COLABORADOR';
@@ -43,6 +44,7 @@ export function Checklist() {
       ...item,
       qtdeEncontrada: null,
       observacao: '',
+      evidencias: [],
     })),
   );
   const [linhasSnapshot, setLinhasSnapshot] = useState<LinhaChecklist[] | null>(null);
@@ -116,11 +118,15 @@ export function Checklist() {
         : base;
 
     setLinhas(
-      baseComClassificacao.map((item) => ({
-        ...item,
-        qtdeEncontrada: null,
-        observacao: '',
-      })),
+      baseComClassificacao.map(
+        (item) =>
+          ({
+            ...(item as any),
+            qtdeEncontrada: null,
+            observacao: '',
+            evidencias: (item as any).evidencias ?? [],
+          } as LinhaChecklist),
+      ),
     );
     if (linhasSnapshot) {
       setLinhas(linhasSnapshot);
@@ -293,6 +299,28 @@ export function Checklist() {
     }
   }
 
+  function adicionarEvidencia(id: number, file: File) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setLinhas((anteriores) =>
+        anteriores.map((linha) =>
+          linha.id === id
+            ? { ...linha, evidencias: [...(linha.evidencias || []), dataUrl] }
+            : linha,
+        ),
+      );
+      if (conferido) {
+        setConferido(false);
+        setEtapa(1);
+      }
+      if (confirmacaoFinal) {
+        setConfirmacaoFinal(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
   function conferirDivergencias() {
     if (!cabecalhoValido) {
       alert(
@@ -327,11 +355,15 @@ export function Checklist() {
 
   function iniciarNovoChecklist() {
     setLinhas(
-      initialItems.map((item) => ({
-        ...item,
-        qtdeEncontrada: null,
-        observacao: '',
-      })),
+      initialItems.map(
+        (item) =>
+          ({
+            ...(item as any),
+            qtdeEncontrada: null,
+            observacao: '',
+            evidencias: [],
+          } as LinhaChecklist),
+      ),
     );
     setFiltroTipo('TODOS');
     setTipoEquipe('URBANO');
@@ -757,6 +789,7 @@ export function Checklist() {
                       <th>Descricao</th>
                       <th style={{ textAlign: 'center' }}>Qtde encontrada</th>
                       <th>Observacao</th>
+                      <th>Evidencias</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -789,6 +822,42 @@ export function Checklist() {
                             }
                             placeholder="Ex: falta 1 unidade, fora da validade..."
                           />
+                        </td>
+                        <td>
+                          <div className="evidencias-cell">
+                            <div className="evidencias-list">
+                              {linha.evidencias && linha.evidencias.length > 0 ? (
+                                linha.evidencias.map((ev, idx) => (
+                                  <a
+                                    key={idx}
+                                    href={ev}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="evidencia-link"
+                                  >
+                                    Ver {idx + 1}
+                                  </a>
+                                ))
+                              ) : (
+                                <span className="hint">Sem evidencias</span>
+                              )}
+                            </div>
+                            <label className="upload-btn">
+                              Anexar
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0];
+                                  if (f) {
+                                    adicionarEvidencia(linha.id, f);
+                                  }
+                                  e.target.value = '';
+                                }}
+                              />
+                            </label>
+                          </div>
                         </td>
                       </tr>
                     ))}
