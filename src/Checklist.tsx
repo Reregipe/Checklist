@@ -275,11 +275,6 @@ export function Checklist() {
     setConfirmacaoFinal(false);
   }
 
-  function limparChecklistsSalvos() {
-    setChecklistsSalvos([]);
-    localStorage.removeItem(SALVAR_KEY);
-  }
-
   function atualizarLinha(
     id: number,
     campo: keyof LinhaChecklist,
@@ -731,14 +726,11 @@ export function Checklist() {
                       {new Date(c.criadoEm).toLocaleString()} — {c.titulo}
                     </option>
                   ))}
-                </select>
-              </div>
+                  </select>
+                </div>
               <div className="filter-group">
-                <span className="filter-label">Ações locais</span>
+                <span className="filter-label">Checklists salvos</span>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => limparChecklistsSalvos()}>
-                    Limpar salvos
-                  </button>
                   <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
                     Guarda até 5 checklists no navegador
                   </span>
