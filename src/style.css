@@ -314,10 +314,23 @@ button.primary:hover {
 
 @media (max-width: 640px) {
   .filters-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .app {
     padding-inline: 0.75rem;
+  }
+
+  .checklist-table {
+    font-size: 0.8rem;
+  }
+
+  .checklist-table th,
+  .checklist-table td {
+    padding: 0.3rem 0.35rem;
+  }
+
+  .checklist-input-number {
+    width: 70px;
   }
 }

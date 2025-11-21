@@ -268,7 +268,7 @@ export function Checklist() {
     // Logo menor
     try {
       const img = new Image();
-      img.src = '/logo-engeletrica.png';
+      img.src = 'logo-engeletrica.png';
       await new Promise<void>((resolve, reject) => {
         img.onload = () => resolve();
         img.onerror = () => reject(new Error('Erro ao carregar logo'));
@@ -394,7 +394,7 @@ export function Checklist() {
     <div className="app">
       <header className="app-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <img src="/logo-engeletrica.png" alt="Engeletrica" style={{ height: 40 }} />
+          <img src="logo-engeletrica.png" alt="Engeletrica" style={{ height: 40 }} />
           <div>
             <h1 className="app-title">Checklist de Equipes</h1>
             <p className="app-subtitle">Conferencia EPI / EPC / Ferramental</p>
@@ -628,7 +628,7 @@ export function Checklist() {
             </div>
           </div>
 
-          {setor && (setor !== 'OBRAS' || modalidadeObras) && modoChecklist && (
+          {filtrosPreenchidos && (
             <div className="table-card">
               <div className="table-wrapper">
                 <table className="checklist-table">
