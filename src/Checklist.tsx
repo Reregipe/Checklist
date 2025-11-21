@@ -19,6 +19,24 @@ type TipoEquipe = 'URBANO' | 'RURAL';
 type Etapa = 1 | 2;
 type SetorSelecionado = Setor | '';
 
+type ChecklistSalvo = {
+  id: string;
+  criadoEm: string;
+  titulo: string;
+  setor: SetorSelecionado;
+  modalidadeObras: 'LV' | 'LM' | '';
+  modoChecklist: ModoChecklist | '';
+  codigoEquipe: string;
+  tipoEquipe: TipoEquipe;
+  eletricista1: string;
+  eletricista2: string;
+  responsavelChecklist: string;
+  colaboradorIndividual: string;
+  linhas: LinhaChecklist[];
+};
+
+const SALVAR_KEY = 'checklist-salvos';
+
 export function Checklist() {
   const [linhas, setLinhas] = useState<LinhaChecklist[]>(
     initialItems.map((item) => ({
@@ -27,6 +45,7 @@ export function Checklist() {
       observacao: '',
     })),
   );
+  const [linhasSnapshot, setLinhasSnapshot] = useState<LinhaChecklist[] | null>(null);
 
   const [filtroTipo, setFiltroTipo] = useState<string>('TODOS');
   const [tipoEquipe, setTipoEquipe] = useState<TipoEquipe>('URBANO');
@@ -41,6 +60,14 @@ export function Checklist() {
   const [conferido, setConferido] = useState<boolean>(false);
   const [confirmacaoFinal, setConfirmacaoFinal] = useState<boolean>(false);
   const [etapa, setEtapa] = useState<Etapa>(1);
+  const [checklistsSalvos, setChecklistsSalvos] = useState<ChecklistSalvo[]>(() => {
+    try {
+      const raw = localStorage.getItem(SALVAR_KEY);
+      return raw ? (JSON.parse(raw) as ChecklistSalvo[]) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Troca a base de materiais conforme setor/modalidade (STC, Obras LV/LM)
   useEffect(() => {
@@ -95,6 +122,10 @@ export function Checklist() {
         observacao: '',
       })),
     );
+    if (linhasSnapshot) {
+      setLinhas(linhasSnapshot);
+      setLinhasSnapshot(null);
+    }
 
     setFiltroTipo('TODOS');
     if (setor === 'STC') {
@@ -208,6 +239,41 @@ export function Checklist() {
     return Boolean(colaboradorIndividual.trim());
   }, [setor, modalidadeObras, modoChecklist, codigoEquipe, colaboradorIndividual]);
 
+  function salvarChecklistLocal(snapshot: Omit<ChecklistSalvo, 'id' | 'criadoEm'>) {
+    const novo: ChecklistSalvo = {
+      ...snapshot,
+      id: `${Date.now()}`,
+      criadoEm: new Date().toISOString(),
+    };
+    const atualizados = [novo, ...checklistsSalvos].slice(0, 5);
+    setChecklistsSalvos(atualizados);
+    localStorage.setItem(SALVAR_KEY, JSON.stringify(atualizados));
+  }
+
+  function carregarChecklistLocal(id: string) {
+    const escolhido = checklistsSalvos.find((c) => c.id === id);
+    if (!escolhido) return;
+
+    setSetor(escolhido.setor);
+    setModalidadeObras(escolhido.modalidadeObras);
+    setModoChecklist(escolhido.modoChecklist);
+    setCodigoEquipe(escolhido.codigoEquipe);
+    setTipoEquipe(escolhido.tipoEquipe);
+    setEletricista1(escolhido.eletricista1);
+    setEletricista2(escolhido.eletricista2);
+    setResponsavelChecklist(escolhido.responsavelChecklist);
+    setColaboradorIndividual(escolhido.colaboradorIndividual);
+    setLinhasSnapshot(escolhido.linhas);
+    setEtapa(1);
+    setConferido(false);
+    setConfirmacaoFinal(false);
+  }
+
+  function limparChecklistsSalvos() {
+    setChecklistsSalvos([]);
+    localStorage.removeItem(SALVAR_KEY);
+  }
+
   function atualizarLinha(
     id: number,
     campo: keyof LinhaChecklist,
@@ -238,6 +304,25 @@ export function Checklist() {
     }
     setConferido(true);
     setEtapa(2);
+
+    const snapshotTitulo =
+      modoChecklist === 'VIATURA'
+        ? `Caminhão/Viatura ${codigoEquipe || 'sem equipe'}`
+        : `Colaborador ${colaboradorIndividual || 'sem nome'}`;
+
+    salvarChecklistLocal({
+      titulo: snapshotTitulo,
+      setor,
+      modalidadeObras,
+      modoChecklist,
+      codigoEquipe,
+      tipoEquipe,
+      eletricista1,
+      eletricista2,
+      responsavelChecklist,
+      colaboradorIndividual,
+      linhas,
+    });
   }
 
   function iniciarNovoChecklist() {
@@ -592,6 +677,40 @@ export function Checklist() {
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            <div className="filters-grid" style={{ marginTop: '0.5rem' }}>
+              <div className="filter-group">
+                <span className="filter-label">Checklists salvos (local)</span>
+                <select
+                  className="filter-control"
+                  value=""
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value) {
+                      carregarChecklistLocal(value);
+                    }
+                  }}
+                >
+                  <option value="">Selecione para carregar...</option>
+                  {checklistsSalvos.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {new Date(c.criadoEm).toLocaleString()} — {c.titulo}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="filter-group">
+                <span className="filter-label">Ações locais</span>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button type="button" onClick={() => limparChecklistsSalvos()}>
+                    Limpar salvos
+                  </button>
+                  <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>
+                    Guarda até 5 checklists no navegador
+                  </span>
+                </div>
               </div>
             </div>
 
