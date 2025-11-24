@@ -772,7 +772,8 @@ export function Checklist() {
                         <td>
                           <div className="evidencias-cell">
                             <div className="evidencias-list">
-                              {linha.evidencias && linha.evidencias.length > 0 ? (
+                              {linha.evidencias &&
+                                linha.evidencias.length > 0 &&
                                 linha.evidencias.map((ev, idx) => (
                                   <a
                                     key={idx}
@@ -783,13 +784,10 @@ export function Checklist() {
                                   >
                                     Ver {idx + 1}
                                   </a>
-                                ))
-                              ) : (
-                                <span className="hint">Sem evidencias</span>
-                              )}
+                                ))}
                             </div>
                             <label className="upload-btn">
-                              Anexar (câmera)
+                              Anexar
                               <input
                                 type="file"
                                 accept="image/*"
