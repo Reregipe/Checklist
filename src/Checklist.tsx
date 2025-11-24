@@ -789,10 +789,11 @@ export function Checklist() {
                               )}
                             </div>
                             <label className="upload-btn">
-                              Anexar
+                              Anexar (câmera)
                               <input
                                 type="file"
                                 accept="image/*"
+                                capture="environment"
                                 style={{ display: 'none' }}
                                 onChange={(e) => {
                                   const f = e.target.files?.[0];
